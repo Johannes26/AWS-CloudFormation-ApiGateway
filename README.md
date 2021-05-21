@@ -9,7 +9,7 @@
 
 | Api Gateway | Cloud Formation | Lambda | Python |
 | ------ | ------ | ------ | ------ |
-| ![](img/api-gateway.jpg) | ![](img/cloudformation.jpeg) | ![](img/lambda.png) | ![](img/python.png) |
+| ![](img/api-gateway.png) | ![](img/cloudformation.png) | ![](img/lambda.png) | ![](img/python.png) |
 
 ## Descripción
 En este experimento se genera la migración de una función lambda de una API en la herramienta de AWS Gateway, con ayuda del servicio CloudFormation 
