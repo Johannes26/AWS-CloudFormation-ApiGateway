@@ -1,0 +1,119 @@
+{
+   "AWSTemplateFormatVersion": "2010-09-09",
+   "Description": "AWS API Gateway with a Lambda Integration",
+   "Resources": {
+      "ApiGatewayRestApi": {
+         "Type": "AWS::ApiGateway::RestApi",
+         "Properties": {
+            "ApiKeySourceType": "HEADER",
+            "Description": "An API Gateway with a Lambda Integration",
+            "EndpointConfiguration": {
+               "Types": [
+                  "EDGE"
+               ]
+            },
+            "Name": "lambda-arep2021"
+         }
+      },
+      "ApiGatewayResource": {
+         "Type": "AWS::ApiGateway::Resource",
+         "Properties": {
+            "ParentId": {
+               "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+               ]
+            },
+            "PathPart": "Word",
+            "RestApiId": {
+               "Ref": "ApiGatewayRestApi"
+            }
+         }
+      },
+      "ApiGatewayMethod": {
+         "Type": "AWS::ApiGateway::Method",
+         "Properties": {
+            "ApiKeyRequired": false,
+            "AuthorizationType": "NONE",
+            "HttpMethod": "POST",
+            "MethodResponses": [
+               {
+                  "StatusCode": 200,
+                  "ResponseModels": {
+                     "application/json": "Empty"
+                  }
+               }
+            ],
+            "Integration": {
+               "ConnectionType": "INTERNET",
+               "IntegrationHttpMethod": "POST",
+               "PassthroughBehavior": "WHEN_NO_MATCH",
+               "TimeoutInMillis": 29000,
+               "IntegrationResponses": [
+                  {
+                     "StatusCode": 200,
+                     "ResponseTemplates": {
+                        "application/json": ""
+                     }
+                  }
+               ],
+               "Type": "AWS",
+               "Uri": {
+                  "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:537846341098:function:lambda:initt/invocations"
+               }
+            },
+            "OperationName": "lambda",
+            "ResourceId": {
+               "Ref": "ApiGatewayResource"
+            },
+            "RestApiId": {
+               "Ref": "ApiGatewayRestApi"
+            }
+         }
+      },
+      "ApiGatewayModel": {
+         "Type": "AWS::ApiGateway::Model",
+         "Properties": {
+            "ContentType": "application/json",
+            "RestApiId": {
+               "Ref": "ApiGatewayRestApi"
+            },
+            "Schema": {}
+         }
+      },
+      "ApiGatewayStage": {
+         "Type": "AWS::ApiGateway::Stage",
+         "Properties": {
+            "DeploymentId": {
+               "Ref": "ApiGatewayDeployment"
+            },
+            "Description": "Lambda API Stage base",
+            "RestApiId": {
+               "Ref": "ApiGatewayRestApi"
+            },
+            "StageName": "base"
+         }
+      },
+      "ApiGatewayDeployment": {
+         "Type": "AWS::ApiGateway::Deployment",
+         "DependsOn": [
+            "ApiGatewayMethod",
+            "ConfigLambdaPermission"
+         ],
+         "Properties": {
+            "Description": "Lambda API Deployment",
+            "RestApiId": {
+               "Ref": "ApiGatewayRestApi"
+            }
+         }
+      },
+      "ConfigLambdaPermission": {
+         "Type": "AWS::Lambda::Permission",
+         "Properties": {
+            "Action": "lambda:InvokeFunction",
+            "FunctionName": "arn:aws:lambda:us-east-1:537846341098:function:lambda:initt",
+            "Principal": "apigateway.amazonaws.com"
+         }
+      }
+   }
+}
